@@ -1,7 +1,8 @@
 {
   "name": "bill-splitter",
   "version": "1.0.0",
-  "description": "An easy way to split the bill among friends with a fun twist. Take a picture of your bill and gemma will extraxt the data from the image and will allow you to split the bill among the people present. It allows a person to pick what they purchased. It also lets you spin a wheel to test your luck and the chosen person pays the whole bill.",
+  "type":"module",
+  "description": "An easy way to split the bill among friends with a fun twist. Take a picture of your bill and gemma will extract the data from the image and will allow you to split the bill among the people present. It allows a person to pick what they purchased. It also lets you spin a wheel to test your luck and the chosen person pays the whole bill.",
   "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
@@ -14,7 +15,7 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "type": "commonjs",
+
   "bugs": {
     "url": "https://github.com/Shamanth1204/bill-splitter/issues"
   },
