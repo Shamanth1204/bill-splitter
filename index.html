@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bill Splitter AI - Neobrutalism Edition</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Space Grotesk for bold Neobrutalist typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700;800;900&display=swap" rel="stylesheet">
+    <!-- Canvas Confetti Library -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Space Grotesk', 'sans-serif'],
+                    },
+                    colors: {
+                        neo: {
+                            lime: '#88E72E',
+                            orange: '#FF5C00',
+                            yellow: '#FFD600',
+                            cyan: '#00E5FF',
+                            bg: '#E2E8F0',
+                            card: '#FFFFFF',
+                            black: '#000000',
+                        }
+                    },
+                    boxShadow: {
+                        'neo': '4px 4px 0px 0px #000000',
+                        'neo-lg': '6px 6px 0px 0px #000000',
+                        'neo-xl': '8px 8px 0px 0px #000000',
+                        'neo-sm': '2px 2px 0px 0px #000000',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #88E72E;
+            font-family: 'Space Grotesk', sans-serif;
+        }
+
+        /* Tactile Press Animation for Neobrutalist Elements */
+        .neo-btn {
+            transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .neo-btn:hover {
+            transform: translate(-2px, -2px);
+            box-shadow: 6px 6px 0px 0px #000000;
+        }
+        .neo-btn:active {
+            transform: translate(2px, 2px);
+            box-shadow: 2px 2px 0px 0px #000000;
+        }
+
+        /* Scroll Reveal Utility */
+        .reveal {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.5s ease, transform 0.5s ease;
+        }
+
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Custom Neobrutalist Checkbox */
+        input[type="checkbox"] {
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #000;
+            border-radius: 4px;
+            background: #fff;
+            cursor: pointer;
+            position: relative;
+        }
+
+        input[type="checkbox"]:checked {
+            background: #FF5C00;
+        }
+
+        input[type="checkbox"]:checked::after {
+            content: '✓';
+            color: #fff;
+            font-weight: 900;
+            font-size: 14px;
+            position: absolute;
+            top: -2px;
+            left: 2px;
+        }
+    </style>
+</head>
+<body class="min-h-screen p-4 sm:p-8 relative overflow-x-hidden antialiased">
+
+    <div class="max-w-xl mx-auto space-y-8 relative z-10">
+        
+        <!-- Animated Neobrutalist Mascot Header -->
+        <header class="text-center pt-2 reveal active">
+            <!-- Mascot Face Card -->
+            <div class="w-24 h-24 bg-neo-yellow border-4 border-black shadow-neo-lg rounded-3xl mx-auto mb-4 flex flex-col items-center justify-center relative overflow-hidden group hover:rotate-3 transition-transform">
+                <div class="flex gap-4 mb-2">
+                    <div class="w-4 h-4 bg-black rounded-full animate-bounce"></div>
+                    <div class="w-4 h-4 bg-black rounded-full animate-bounce [animation-delay:0.15s]"></div>
+                </div>
+                <div class="w-10 h-3 bg-neo-orange border-2 border-black rounded-full"></div>
+            </div>
+
+            <div class="inline-block bg-neo-yellow border-3 border-black shadow-neo-sm px-4 py-1 text-black font-black text-xs uppercase tracking-wider mb-2 -rotate-1">
+                ⚡ Gemma AI Engine
+            </div>
+            <h1 class="text-4xl sm:text-5xl font-black text-black tracking-tight uppercase leading-none">
+                BILL <span class="bg-neo-orange text-white px-2 border-2 border-black shadow-neo-sm inline-block rotate-1">SPLITTER</span>
+            </h1>
+            <p class="text-black font-bold text-sm mt-3 bg-white border-2 border-black shadow-neo-sm py-1 px-3 inline-block">
+                SCAN RECEIPT • SPLIT FAIRLY • SPIN WHEEL
+            </p>
+        </header>
+
+        <!-- Receipt Upload Card -->
+        <div class="bg-white border-4 border-black shadow-neo-xl rounded-2xl p-6 text-center reveal active">
+            <label class="cursor-pointer block group">
+                <div class="w-16 h-16 bg-neo-cyan border-3 border-black shadow-neo rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:-rotate-6 transition-transform">
+                    <span class="text-2xl">📸</span>
+                </div>
+                <span class="block font-black text-black text-lg uppercase tracking-wide mb-1">UPLOAD RECEIPT</span>
+                <span class="block text-xs font-bold text-slate-600 bg-neo-yellow border-2 border-black py-1 px-2 inline-block" id="file-name-display">SELECT PNG, JPG OR WEBP</span>
+                <input type="file" id="receiptInput" accept="image/*" class="hidden" onchange="updateFileName(this)">
+            </label>
+
+            <!-- Scan Action Button -->
+            <button onclick="processReceipt()" class="neo-btn w-full mt-6 bg-neo-orange text-white font-black text-lg uppercase py-4 px-6 border-4 border-black shadow-neo-lg rounded-2xl tracking-wider">
+                ⚡ SCAN RECEIPT WITH AI
+            </button>
+        </div>
+
+        <!-- Status Notification -->
+        <div id="status" class="text-center font-black text-sm text-black bg-white border-3 border-black shadow-neo-sm py-2 px-4 hidden uppercase"></div>
+
+        <!-- Output & Split Section (Hidden until scanned) -->
+        <div id="output" class="hidden space-y-8">
+            
+            <!-- Extracted Receipt Items -->
+            <div class="bg-white border-4 border-black shadow-neo-xl rounded-2xl p-6 reveal">
+                <h2 class="text-xl font-black text-black uppercase tracking-tight mb-4 flex items-center gap-2 border-b-4 border-black pb-3">
+                    🧾 EXTRACTED ITEMS
+                </h2>
+                <div id="itemsList" class="space-y-2 mb-4"></div>
+                
+                <div class="space-y-2 border-t-4 border-black pt-4 font-bold text-sm">
+                    <div class="flex justify-between text-black"><span>TAX:</span> <span id="taxVal" class="bg-neo-yellow border-2 border-black px-2">$0.00</span></div>
+                    <div class="flex justify-between text-black"><span>TIP / GRATUITY:</span> <span id="tipVal" class="bg-neo-yellow border-2 border-black px-2">$0.00</span></div>
+                    <div class="flex justify-between font-black text-lg text-black bg-neo-lime border-3 border-black p-3 rounded-xl shadow-neo-sm mt-3">
+                        <span>TOTAL BILL:</span> <span id="totalBillVal">$0.00</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Split Bill Calculator -->
+            <div class="bg-white border-4 border-black shadow-neo-xl rounded-2xl p-6 reveal">
+                <h2 class="text-xl font-black text-black uppercase tracking-tight mb-4 flex items-center gap-2 border-b-4 border-black pb-3">
+                    👥 ADD FRIENDS & SPLIT
+                </h2>
+                
+                <div class="flex gap-3 mb-5">
+                    <input type="text" id="personName" placeholder="ENTER NAME" class="bg-neo-bg border-3 border-black focus:bg-white focus:outline-none rounded-xl px-4 py-3 text-black font-bold text-sm flex-grow shadow-neo-sm">
+                    <button onclick="addPerson()" class="neo-btn bg-neo-cyan text-black font-black text-sm uppercase px-6 py-3 border-3 border-black shadow-neo-sm rounded-xl">
+                        ADD
+                    </button>
+                </div>
+
+                <!-- Payment Status Tracker -->
+                <div id="paidTracker" class="bg-neo-yellow border-3 border-black p-4 rounded-xl mb-5 shadow-neo-sm hidden">
+                    <div class="flex justify-between text-xs font-black text-black">
+                        <span>COLLECTED: <span id="collectedVal" class="bg-white border-2 border-black px-1.5">$0.00</span></span>
+                        <span>REMAINING: <span id="remainingVal" class="bg-neo-orange text-white border-2 border-black px-1.5">$0.00</span></span>
+                    </div>
+                </div>
+
+                <div id="personsList" class="space-y-4"></div>
+            </div>
+
+            <!-- Wheel of Misfortune Game -->
+            <div class="bg-white border-4 border-black shadow-neo-xl rounded-2xl p-6 text-center reveal">
+                <h2 class="text-2xl font-black text-black uppercase tracking-tight mb-1 bg-neo-orange text-white border-3 border-black shadow-neo-sm py-1.5 px-3 inline-block -rotate-1">
+                    🎯 UNLUCKY WHEEL
+                </h2>
+                <p class="text-xs font-bold text-black uppercase mt-3 mb-6">SPIN TO PICK ONE PERSON TO PAY THE REMAINING BILL!</p>
+
+                <!-- Canvas Wheel Container -->
+                <div class="relative w-72 h-72 mx-auto flex items-center justify-center">
+                    <!-- Pointer Arrow -->
+                    <div class="absolute -top-4 z-20 w-0 h-0 border-l-[14px] border-l-transparent border-r-[14px] border-r-transparent border-t-[26px] border-t-black drop-shadow-md"></div>
+                    <canvas id="wheelCanvas" width="280" height="280" class="rounded-full border-4 border-black shadow-neo-lg bg-white"></canvas>
+                </div>
+
+                <button id="spinBtn" onclick="spinWheel()" class="neo-btn w-full mt-6 bg-neo-yellow text-black font-black text-lg uppercase py-4 px-8 border-4 border-black shadow-neo-lg rounded-2xl tracking-wider">
+                    🎰 SPIN THE WHEEL!
+                </button>
+
+                <!-- Winner Banner -->
+                <div id="winnerBanner" class="hidden mt-6 p-5 bg-neo-orange text-white border-4 border-black shadow-neo-lg rounded-2xl font-black text-base animate-bounce">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Floating Crying Emojis Container -->
+    <div id="emojiContainer" class="fixed inset-0 pointer-events-none z-50 overflow-hidden"></div>
+
+    <script>
+        let receiptData = null;
+        let people = [];
+        let paidTotal = 0;
+        let currentAngle = 0;
+        let isSpinning = false;
+        
+        // High-Contrast Neobrutalist Wheel Palette (No Purple or Pink)
+        const colors = ['#88E72E', '#FF5C00', '#FFD600', '#00E5FF', '#FFFFFF', '#000000'];
+
+        function setupScrollObserver() {
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('active');
+                    }
+                });
+            }, { threshold: 0.1 });
+
+            document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+        }
+
+        function updateFileName(input) {
+            const nameDisplay = document.getElementById('file-name-display');
+            if (input.files[0]) {
+                nameDisplay.innerText = input.files[0].name.toUpperCase();
+                nameDisplay.classList.add('bg-neo-cyan');
+            }
+        }
+
+        async function processReceipt() {
+            const fileInput = document.getElementById('receiptInput');
+            const status = document.getElementById('status');
+            const output = document.getElementById('output');
+
+            if (!fileInput.files[0]) {
+                alert("Please select an image file first.");
+                return;
+            }
+
+            const file = fileInput.files[0];
+            status.innerText = "⚡ ANALYZING RECEIPT WITH GEMMA AI...";
+            status.classList.remove('hidden');
+
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = async function () {
+                const base64Data = reader.result.split(',')[1];
+                
+                try {
+                    const res = await fetch('/api/scan-receipt', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ imageBase64: base64Data, mimeType: file.type })
+                    });
+
+                    const result = await res.json();
+                    if (result.success) {
+                        status.classList.add('hidden');
+                        receiptData = result.data;
+                        paidTotal = 0;
+                        output.classList.remove('hidden');
+                        
+                        // Render items
+                        const itemsList = document.getElementById('itemsList');
+                        itemsList.innerHTML = '';
+                        receiptData.items.forEach((item) => {
+                            const div = document.createElement('div');
+                            div.className = 'flex justify-between py-2 px-3 bg-neo-bg border-2 border-black font-bold text-xs rounded-lg shadow-neo-sm';
+                            div.innerHTML = `<span>${item.quantity}x ${item.name}</span> <span class="bg-white border border-black px-1.5">$${(item.price * item.quantity).toFixed(2)}</span>`;
+                            itemsList.appendChild(div);
+                        });
+
+                        const total = calculateGrandTotal();
+                        document.getElementById('taxVal').innerText = `$${receiptData.tax.toFixed(2)}`;
+                        document.getElementById('tipVal').innerText = `$${receiptData.tip.toFixed(2)}`;
+                        document.getElementById('totalBillVal').innerText = `$${total.toFixed(2)}`;
+                        
+                        renderSplitSummary();
+                        setupScrollObserver();
+                    } else {
+                        status.innerText = "❌ ERROR PROCESSING RECEIPT.";
+                    }
+                } catch (err) {
+                    console.error(err);
+                    status.innerText = "❌ FAILED TO CONNECT TO SERVER.";
+                }
+            };
+        }
+
+        function calculateGrandTotal() {
+            if (!receiptData) return 0;
+            const itemsSum = receiptData.items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            return itemsSum + receiptData.tax + receiptData.tip;
+        }
+
+        function addPerson() {
+            const nameInput = document.getElementById('personName');
+            const name = nameInput.value.trim();
+            if (!name) return;
+
+            people.push({ name: name, items: [] });
+            nameInput.value = '';
+            renderSplitSummary();
+        }
+
+        function removeAndMarkPaid(index, amount) {
+            paidTotal += amount;
+            people.splice(index, 1);
+            renderSplitSummary();
+        }
+
+        function toggleItemForPerson(personIndex, itemIndex) {
+            const personItems = people[personIndex].items;
+            const idx = personItems.indexOf(itemIndex);
+            if (idx > -1) {
+                personItems.splice(idx, 1);
+            } else {
+                personItems.push(itemIndex);
+            }
+            renderSplitSummary();
+        }
+        function renderSplitSummary() {
+            const personsList = document.getElementById('personsList');
+            const paidTracker = document.getElementById('paidTracker');
+            personsList.innerHTML = '';
+
+            const totalBill = calculateGrandTotal();
+            const remainingBalance = Math.max(0, totalBill - paidTotal);
+
+            if (paidTotal > 0) {
+                paidTracker.classList.remove('hidden');
+                document.getElementById('collectedVal').innerText = `$${paidTotal.toFixed(2)}`;
+                document.getElementById('remainingVal').innerText = `$${remainingBalance.toFixed(2)}`;
+            } else {
+                paidTracker.classList.add('hidden');
+            }
+
+            if (people.length === 0) {
+                personsList.innerHTML = '<p class="text-xs font-bold text-black italic text-center py-2 bg-neo-bg border-2 border-black">NO FRIENDS ADDED YET.</p>';
+                drawWheel();
+                return;
+            }
+
+            people.forEach((person, pIndex) => {
+                let subtotal = 0;
+                person.items.forEach(itemIdx => {
+                    const item = receiptData.items[itemIdx];
+                    subtotal += (item.price * item.quantity) / getShareCount(itemIdx);
+                });
+
+                const totalSubtotal = receiptData.items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+                let taxShare = 0;
+                let tipShare = 0;
+                if (totalSubtotal > 0) {
+                    const ratio = subtotal / totalSubtotal;
+                    taxShare = receiptData.tax * ratio;
+                    tipShare = receiptData.tip * ratio;
+                }
+                const grandTotal = subtotal + taxShare + tipShare;
+
+                const personDiv = document.createElement('div');
+                personDiv.className = 'bg-neo-bg border-3 border-black p-4 rounded-xl shadow-neo-sm';
+                
+                let checkboxesHtml = '<div class="text-[10px] font-black uppercase tracking-wider mb-2">CHECK ORDERED ITEMS:</div><div class="grid grid-cols-1 gap-2 mb-3">';
+                receiptData.items.forEach((item, iIndex) => {
+                    const isChecked = person.items.includes(iIndex) ? 'checked' : '';
+                    checkboxesHtml += `<label class="flex items-center space-x-2 text-xs font-bold text-black cursor-pointer bg-white border-2 border-black p-1.5 rounded">
+                        <input type="checkbox" ${isChecked} onchange="toggleItemForPerson(${pIndex}, ${iIndex})">
+                        <span>${item.name} ($${(item.price * item.quantity).toFixed(2)})</span>
+                    </label>`;
+                });
+                checkboxesHtml += '</div>';
+
+                personDiv.innerHTML = `
+                    <div class="flex justify-between items-center mb-3">
+                        <div>
+                            <span class="font-black text-black text-base uppercase">${person.name}</span>
+                            <span class="ml-2 text-xs font-black px-2 py-0.5 bg-neo-yellow border-2 border-black">$${grandTotal.toFixed(2)}</span>
+                        </div>
+                        <button onclick="removeAndMarkPaid(${pIndex}, ${grandTotal})" class="neo-btn bg-neo-lime text-black font-black text-xs px-3 py-1.5 border-2 border-black shadow-neo-sm rounded-lg">
+                            ✓ PAID & REMOVE
+                        </button>
+                    </div>
+                    ${checkboxesHtml}
+                    <div class="text-[10px] font-bold text-black flex justify-between border-t-2 border-black pt-2">
+                        <span>ITEMS: $${subtotal.toFixed(2)}</span>
+                        <span>TAX/TIP: $${(taxShare + tipShare).toFixed(2)}</span>
+                    </div>
+                `;
+                personsList.appendChild(personDiv);
+            });
+
+            drawWheel();
+        }
+
+        function getShareCount(itemIndex) {
+            let count = 0;
+            people.forEach(p => {
+                if (p.items.includes(itemIndex)) count++;
+            });
+            return count > 0 ? count : 1;
+        }
+
+        // --- WHEEL DRAWING & SPINNING LOGIC ---
+        function drawWheel() {
+            const canvas = document.getElementById('wheelCanvas');
+            const ctx = canvas.getContext('2d');
+            const numSegments = people.length;
+            const centerX = canvas.width / 2;
+            const centerY = canvas.height / 2;
+            const radius = canvas.width / 2;
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            if (numSegments === 0) {
+                ctx.fillStyle = '#E2E8F0';
+                ctx.beginPath();
+                ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
+                ctx.fill();
+                ctx.fillStyle = '#000000';
+                ctx.font = 'bold 12px Space Grotesk';
+                ctx.textAlign = 'center';
+                ctx.fillText('NO PLAYERS AVAILABLE', centerX, centerY);
+                return;
+            }
+
+            const anglePerSegment = (2 * Math.PI) / numSegments;
+
+            for (let i = 0; i < numSegments; i++) {
+                const startAngle = currentAngle + i * anglePerSegment;
+                const endAngle = startAngle + anglePerSegment;
+
+                ctx.beginPath();
+                ctx.moveTo(centerX, centerY);
+                ctx.arc(centerX, centerY, radius, startAngle, endAngle);
+                ctx.closePath();
+
+                ctx.fillStyle = colors[i % colors.length];
+                ctx.fill();
+                ctx.strokeStyle = '#000000';
+                ctx.lineWidth = 4;
+                ctx.stroke();
+
+                // Text Label
+                ctx.save();
+                ctx.translate(centerX, centerY);
+                ctx.rotate(startAngle + anglePerSegment / 2);
+                ctx.textAlign = 'right';
+                // Adjust text color depending on segment fill
+                const segmentColor = colors[i % colors.length];
+                ctx.fillStyle = (segmentColor === '#000000') ? '#FFFFFF' : '#000000';
+                ctx.font = 'bold 13px Space Grotesk';
+                ctx.fillText(people[i].name.toUpperCase(), radius - 15, 4);
+                ctx.restore();
+            }
+
+            // Center Pin
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, 16, 0, 2 * Math.PI);
+            ctx.fillStyle = '#FF5C00';
+            ctx.fill();
+            ctx.strokeStyle = '#000000';
+            ctx.lineWidth = 3;
+            ctx.stroke();
+        }
+
+        function spinWheel() {
+            if (isSpinning) return;
+            if (people.length === 0) {
+                alert("Please add at least 1 person to spin!");
+                return;
+            }
+
+            isSpinning = true;
+            document.getElementById('winnerBanner').classList.add('hidden');
+            document.getElementById('spinBtn').disabled = true;
+
+            const extraRounds = 5 + Math.floor(Math.random() * 5);
+            const randomDegree = Math.random() * (2 * Math.PI);
+            const totalRotation = extraRounds * 2 * Math.PI + randomDegree;
+            
+            const startAngle = currentAngle;
+            const duration = 4000;
+            const startTime = performance.now();
+
+            function animateWheel(now) {
+                const elapsed = now - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                
+                const easeOut = 1 - Math.pow(1 - progress, 3);
+                currentAngle = startAngle + totalRotation * easeOut;
+
+                drawWheel();
+
+                if (progress < 1) {
+                    requestAnimationFrame(animateWheel);
+                } else {
+                    isSpinning = false;
+                    document.getElementById('spinBtn').disabled = false;
+                    calculateLoser();
+                }
+            }
+
+            requestAnimationFrame(animateWheel);
+        }
+
+        function calculateLoser() {
+            const numSegments = people.length;
+            const normalizedAngle = (currentAngle % (2 * Math.PI) + 2 * Math.PI) % (2 * Math.PI);
+            const pointerAngle = (1.5 * Math.PI - normalizedAngle + 2 * Math.PI) % (2 * Math.PI);
+            const segmentAngle = (2 * Math.PI) / numSegments;
+            const winningIndex = Math.floor(pointerAngle / segmentAngle) % numSegments;
+
+            const unluckyPerson = people[winningIndex].name;
+            const grandTotal = calculateGrandTotal();
+            const remainingBalance = Math.max(0, grandTotal - paidTotal);
+
+            const banner = document.getElementById('winnerBanner');
+            banner.innerHTML = `😭 UNLUCKY LOSER 😭<br><span class="text-2xl font-black uppercase text-yellow-300 block my-1">${unluckyPerson}</span> HAS TO PAY THE REMAINING BALANCE OF <span class="bg-black text-white px-2 py-0.5">$${remainingBalance.toFixed(2)}</span>! 💸`;
+            banner.classList.remove('hidden');
+
+            triggerFireworks();
+            triggerCryingEmojis();
+        }
+
+        function triggerFireworks() {
+            const count = 200;
+            const defaults = { origin: { y: 0.7 } };
+
+            function fire(particleRatio, opts) {
+                confetti(Object.assign({}, defaults, opts, {
+                    particleCount: Math.floor(count * particleRatio),
+                    colors: ['#88E72E', '#FF5C00', '#FFD600', '#00E5FF', '#000000']
+                }));
+            }
+
+            fire(0.25, { spread: 26, startVelocity: 55 });
+            fire(0.2, { spread: 60 });
+            fire(0.35, { spread: 100, decay: 0.91, scalar: 0.8 });
+            fire(0.1, { spread: 120, startVelocity: 25, decay: 0.92, scalar: 1.2 });
+            fire(0.1, { spread: 120, startVelocity: 45 });
+        }
+
+        function triggerCryingEmojis() {
+            const container = document.getElementById('emojiContainer');
+            container.innerHTML = '';
+
+            for (let i = 0; i < 30; i++) {
+                const emoji = document.createElement('div');
+                emoji.innerText = '😭';
+                emoji.className = 'absolute text-4xl animate-bounce';
+                emoji.style.left = Math.random() * 100 + 'vw';
+                emoji.style.top = Math.random() * 80 + 'vh';
+                emoji.style.fontSize = (Math.random() * 30 + 30) + 'px';
+                emoji.style.transition = 'all 3s ease-out';
+                container.appendChild(emoji);
+
+                setTimeout(() => {
+                    emoji.style.transform = `translateY(-100px) scale(1.5)`;
+                    emoji.style.opacity = '0';
+                }, 50);
+            }
+
+            setTimeout(() => {
+                container.innerHTML = '';
+            }, 3500);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            drawWheel();
+            setupScrollObserver();
+        });
+    </script>
+</body>
+</html>
